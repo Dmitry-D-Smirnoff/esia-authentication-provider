@@ -1,0 +1,204 @@
+@startuml
+
+'skinparam dpi 300
+skinparam shadowing false
+
+actor       Пользователь                         as user
+participant "SP-Application,\nбраузер"           as spa
+participant "Внутренний сервис\n'authenticator'" as authenticator
+participant "ЕСИА\n"                             as esia
+participant "Реестр сегментов\n"                 as seg
+
+note over user: Входит в приложение
+
+user -> spa
+
+spa -> authenticator: login\n(esiaOrganizationId: null )
+
+note over authenticator
+Формирование URL
+аутентификации в ЕСИА
+(в него вкладывается
+URL для возврата в SPA)
+endnote
+
+
+authenticator --> spa: redirect (307) URL
+
+note over spa
+Переход в ЕСИА по
+сформированному URL
+аутентификации
+endnote
+
+spa -> esia
+
+note over esia
+Отображение формы
+аутентификации в ЕСИА
+endnote
+
+esia --> user
+
+note over user
+Ввод данных для
+аутентификации
+endnote
+
+user -> esia
+
+note over esia
+Вывод формы подтверждения
+доступа к общим данным
+учётной записи
+endnote
+
+esia --> user
+
+user -> esia: Подтверждение
+
+note over esia
+Формирование кода
+авторизации
+endnote
+
+esia --> spa: redirect: URL возврата в SPA\nсодержит authCode, state
+
+spa -> authenticator: getOrganizationsByAuthCode\n(authCode, state)
+
+authenticator -> esia: getToken(authCode)
+
+note left
+Запрос у ЕСИА
+токена по коду
+endnote
+
+esia --> authenticator: Токены для доступа и обновления
+
+authenticator -\ esia: checkAccessTokenAndGetUserId(accessToken),\ngetUserOrganizationsData(esiaUserId, accessToken)
+note left
+Получение идентификатора пользователя,
+списка организаций пользователя
+endnote
+
+esia --/ authenticator
+
+
+|||
+
+authenticator --> spa: Список организаций
+
+note over spa
+Отображение списка
+организаций для выбора
+endnote
+
+spa --> user
+
+note over user
+Выбор организации
+из списка
+endnote
+
+user -> spa
+
+spa -> seg: Запрос списка сегментов\nдля пользователя\nс учётом ОГРН
+seg --> spa
+
+note over spa
+Отображение списка
+сегментов для выбора
+endnote
+
+spa --> user
+
+note over user
+Выбор сегмента
+из списка
+endnote
+
+user -> spa
+
+spa -> authenticator: login(esiaOrganizationId)
+
+note over authenticator
+Формирование URL
+аутентификации в ЕСИА
+с учётом организации
+(в него вкладывается
+URL для возврата в SPA)
+endnote
+
+authenticator --> spa: redirect (307) URL
+
+note over spa
+Переход в ЕСИА по
+сформированному URL
+аутентификации
+endnote
+
+spa -> esia
+
+note over esia
+Вывод формы подтверждения
+доступа к информации учётной
+записи по выбранной организации
+endnote
+
+esia --> user
+
+user -> esia: Подтверждение
+
+
+note over esia
+Формирование кода
+авторизации
+endnote
+
+esia --> spa: redirect: URL возврата в SPA\nсодержит authCode, state
+
+spa -> authenticator: authenticateByAuthCode\n(authCode, state, esiaOrganizationId, segmentId)
+
+note over authenticator
+Запрос у ЕСИА
+токена по коду
+endnote
+
+authenticator -> esia: getToken(authCode, esiaOrganizationId)
+
+esia --> authenticator: Токены для доступа и обновления
+
+authenticator -> esia: Получение идентификатора пользователя,\nинформации о пользователе,\nсписка организаций пользователя
+esia --> authenticator
+
+note over authenticator
+Создание учётной записи и профиля
+пользователя, если отсутствуют
+endnote
+
+note over authenticator
+Актуализация справочника
+групп ЕСИА в платформе
+endnote
+
+note over authenticator
+Синхронизация групп ЕСИА с группами
+безопасности платформы
+endnote
+
+note over authenticator
+Создание сессии в платформе
+endnote
+
+authenticator --> spa
+
+hnote over spa #AAFFAA
+Аутентификация
+выполнена
+endnote
+
+|||
+
+spa --> user
+
+@enduml

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jboss-web xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           version="16.0"
+           xmlns="http://www.jboss.com/xml/ns/javaee"
+           xsi:schemaLocation="http://www.jboss.com/xml/ns/javaee http://www.jboss.org/j2ee/schema/jboss-web_16_0.xsd">
+    <context-root>${esia-authentication-provider.context-root,env.ESIAPROVIDER_CONTEXT_ROOT:esia-authentication-provider/api}</context-root>
+</jboss-web>

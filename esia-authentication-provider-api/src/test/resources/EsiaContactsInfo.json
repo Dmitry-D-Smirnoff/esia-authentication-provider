@@ -1,0 +1,29 @@
+{
+  "stateFacts": [
+    "hasSize"
+  ],
+  "size": 2,
+  "eTag": "28259A7F8E8B5C2556E995C289CBB586CA714050",
+  "elements": [
+    {
+      "stateFacts": [
+        "Identifiable"
+      ],
+      "id": 14432026,
+      "type": "MBT",
+      "vrfStu": "VERIFIED",
+      "value": "+7(910)4420232",
+      "eTag": "718FAAF1A908C46D552565778B4A9D02280018A6"
+    },
+    {
+      "stateFacts": [
+        "Identifiable"
+      ],
+      "id": 14432027,
+      "type": "EML",
+      "vrfStu": "VERIFIED",
+      "value": "magicmamba@yandex.ru",
+      "eTag": "B8C9A29C7285460D8E9AC4E608D7D441A89CD32A"
+    }
+  ]
+}

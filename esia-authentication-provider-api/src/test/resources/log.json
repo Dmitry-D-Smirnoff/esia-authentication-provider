@@ -1,0 +1,11 @@
+{
+  "systemName": "Платформа ЦТ",
+  "moduleName": "Модуль защиты прикладного ПО",
+  "serviceName": "authenticator",
+  "instanceName": "192.168.240.3:8080",
+  "event": "UserAccountIdentification",
+  "success": true,
+  "entity": "AccountInternal",
+  "currentUserID": null,
+  "state": "userAccountStatus_id=fee64a11-53f3-4c9c-995c-e0ebf6ed8f56; statusChangeReason=null; userProfile_id=2b753402-07ee-4097-8776-96d5fd371781; statusExpirationDate=null; segmentId=85229e69-3ad7-42c3-9255-38af49a05ace; statusUpdateDate=2019-11-11T16:05:51.159367Z; passwordUpdateDate=2019-11-11T16:05:51.159367Z; lastUseDate=null; id=28149699-b3a2-4365-a8f0-26239c99f1dd; login=sysadmin; version=0"
+}

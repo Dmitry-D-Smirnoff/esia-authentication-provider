@@ -1,0 +1,13 @@
+resourcePackages:
+  - ru.voskhod.platform.esiaprovider
+  - ru.voskhod.platform.common.diagnostic
+filterClass: ru.voskhod.platform.esiaprovider.OpenapiFilter
+prettyPrint: true
+cacheTTL: 0
+openAPI:
+  info:
+    version: '1.0.0'
+    title: ЕСИА-провайдер
+    description: 'Провайдер аутентификации через ЕСИА'
+  servers:
+    - url: /esia-authentication-provider/api

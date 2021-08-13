@@ -1,0 +1,474 @@
+openapi: 3.0.1
+info:
+  title: ЕСИА-провайдер
+  description: Провайдер аутентификации через ЕСИА
+  version: 1.0.0
+servers:
+  - url: /esia-authentication-provider/api
+tags:
+  - name: diagnostic
+    description: Диагностическая страница сервиса
+paths:
+  /diagnostic/alive:
+    get:
+      tags:
+        - diagnostic
+      summary: Проверка работоспособности сервиса
+      description: Операция проверки работоспособности сервиса
+      operationId: alive
+      parameters: []
+      responses:
+        204:
+          description: Сервис работоспособен
+        503:
+          description: Сервис работоспособен, но обслуживание клиентов остановлено
+        500:
+          description: Сервис неработоспособен
+          content:
+            text/html: {}
+      security:
+        - bearerAuth: []
+  /diagnostic/command/disable:
+    get:
+      tags:
+        - diagnostic
+      summary: Остановка обслуживания
+      description: Операция остановки обслуживания клиентов сервисом
+      operationId: commandDisable
+      parameters: []
+      responses:
+        204:
+          description: Остановка обслуживания осуществлена успешно
+        409:
+          description: Во время остановки обслуживания произошла обработанная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessageDto'
+        500:
+          description: Во время остановки обслуживания произошла необработанная ошибка
+          content:
+            text/html: {}
+      security:
+        - bearerAuth: []
+  /diagnostic/command/enable:
+    get:
+      tags:
+        - diagnostic
+      summary: Восстановление ослуживания
+      description: Операция запуска/восстановления обслуживания клиентов сервисом
+      operationId: commandEnable
+      parameters: []
+      responses:
+        204:
+          description: Запуск обслуживания осуществлён успешно
+        409:
+          description: Во время запуска обслуживания произошла обработанная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessageDto'
+        500:
+          description: Во время запуска обслуживания произошла необработанная ошибка
+          content:
+            text/html: {}
+      security:
+        - bearerAuth: []
+  /diagnostic/command/reconfig:
+    get:
+      tags:
+        - diagnostic
+      summary: Реконфигурация сервиса
+      description: Операция реконфигурации сервиса
+      operationId: commandReconfig
+      parameters: []
+      responses:
+        204:
+          description: Реконфигурация завершена успешно
+        409:
+          description: Во время реконфигурации произошла обработанная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessageDto'
+        500:
+          description: Во время реконфигурации произошла необработанная ошибка
+          content:
+            text/html: {}
+      security:
+        - bearerAuth: []
+  /diagnostic/metrics:
+    get:
+      tags:
+        - diagnostic
+      summary: Оперативные метрики
+      description: Операция получения оперативной информации о состоянии сервиса
+      operationId: metrics
+      parameters: []
+      responses:
+        200:
+          description: Элементы наблюдения
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Metrics'
+        500:
+          description: Неструктурированная информация об ошибке
+          content:
+            text/html: {}
+      security:
+        - bearerAuth: []
+  /diagnostic/version:
+    get:
+      tags:
+        - diagnostic
+      summary: Версия сервиса
+      description: Возвращает текущую версию сервиса
+      operationId: version
+      parameters: []
+      responses:
+        200:
+          description: Удалось вернуть текущую версию
+        500:
+          description: При возврате версии произошла серверная ошибка
+          content:
+            text/plain: {}
+      security:
+        - bearerAuth: []
+  /esiaauth/auth/code:
+    post:
+      tags:
+        - esiaauth
+      summary: Выполняет аутентификацию в ЕСИА и в платформе на основе кода авторизации
+      operationId: esiaAuthenticateByAuthCode
+      parameters: []
+      requestBody:
+        description: авторизационный код ЕСИА и state (случайный набор байт из ЕСИА)
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthCodeExtendedDto'
+      responses:
+        200:
+          description: Успешно
+          headers:
+            Set-Cookie:
+              $ref: '#/components/headers/session_token'
+              style: simple
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponseDto'
+        400:
+          $ref: '#/components/responses/response_400'
+        401:
+          $ref: '#/components/responses/response_401'
+        403:
+          description: В создании сессии отказано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponseDto'
+        429:
+          description: Превышено максимальное число одновременных сессий
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponseDto'
+        500:
+          $ref: '#/components/responses/response_500'
+  /esiaauth/getorgs:
+    post:
+      tags:
+        - esiaauth
+      summary: Возвращает из ЕСИА список организаций пользователя на основании кода
+        авторизации
+      operationId: esiaGetOrganizationsByAuthCode
+      parameters: []
+      requestBody:
+        description: авторизационный код ЕСИА и state (случайный набор байт из ЕСИА)
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthCodeDto'
+      responses:
+        200:
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrgDto'
+        400:
+          $ref: '#/components/responses/response_400'
+        409:
+          $ref: '#/components/responses/response_409'
+        500:
+          $ref: '#/components/responses/response_500'
+  /esiaauth/login:
+    get:
+      tags:
+        - esiaauth
+      summary: Формирует URL для аутентификации через ЕСИА и возвращает её с кодом
+        307 (temporary redirect)
+      operationId: esiaLogin
+      parameters:
+        - name: org_id
+          in: query
+          description: идентификатор организации в ЕСИА
+          schema:
+            type: string
+        - name: Referer
+          in: header
+          schema:
+            type: string
+            format: uri
+      responses:
+        307:
+          description: temporary redirect
+        400:
+          $ref: '#/components/responses/response_400'
+        409:
+          $ref: '#/components/responses/response_409'
+        500:
+          $ref: '#/components/responses/response_500'
+  /esiaauth/logout:
+    get:
+      tags:
+        - esiaauth
+      summary: Обрывает сессию в платформе; формирует URL ЕСИА для выхода из системы  и
+        возвращает её с кодом 307 (temporary redirect)
+      operationId: esiaLogout
+      parameters:
+        - name: Referer
+          in: header
+          schema:
+            type: string
+            format: uri
+      responses:
+        307:
+          description: temporary redirect
+        401:
+          $ref: '#/components/responses/response_401'
+        403:
+          $ref: '#/components/responses/response_403'
+        500:
+          $ref: '#/components/responses/response_500'
+      security:
+        - bearerAuth: []
+  /esiaauth/esialogoutredirect:
+    get:
+      tags:
+        - esiaauth
+      summary: Формирует URL ЕСИА для выхода из ЕСИА и возвращает его с кодом 307
+        (temporary redirect)
+      operationId: esiaLogoutRedirect
+      parameters:
+        - name: Referer
+          in: header
+          schema:
+            type: string
+            format: uri
+      responses:
+        307:
+          description: temporary redirect
+        500:
+          $ref: '#/components/responses/response_500'
+components:
+  schemas:
+    AuthCodeDto:
+      required:
+        - code
+        - state
+      type: object
+      properties:
+        code:
+          title: значение авторизационного кода ЕСИА
+          type: string
+        state:
+          title: набор случайных символов, имеющий вид 128-битного идентификатора
+            запроса (необходимо для защиты от перехвата) - приходит из ЕСИА
+          type: string
+    AuthCodeExtendedDto:
+      required:
+        - code
+        - segmentId
+        - state
+      type: object
+      properties:
+        code:
+          title: значение авторизационного кода ЕСИА
+          type: string
+        state:
+          title: набор случайных символов, имеющий вид 128-битного идентификатора
+            запроса (необходимо для защиты от перехвата) - приходит из ЕСИА
+          type: string
+        organization:
+          $ref: '#/components/schemas/OrgDto'
+        segmentId:
+          title: идентификатор сегмента
+          type: string
+          format: uuid
+    ErrorMessageDto:
+      required:
+        - code
+        - timestamp
+      type: object
+      properties:
+        code:
+          type: integer
+          description: Код классификации ошибки
+          format: int32
+        timestamp:
+          type: string
+          description: Дата/время ошибки
+          format: date-time
+        systemMessage:
+          type: string
+          description: Сообщение об ошибке, взятое непосредственно из исключения
+        userMessage:
+          type: string
+          description: Сообщение об ошибке, которое будет отображено пользователю
+        rootMessage:
+          type: string
+          description: Сообщение об ошибке, взятое из корневого исключения
+        fields:
+          type: array
+          description: Поля сущности, к которым относится сообщение об ошибке (опционально)
+          items:
+            type: string
+            description: Поля сущности, к которым относится сообщение об ошибке (опционально)
+    MetricExtension:
+      required:
+        - name
+        - value
+      type: object
+      properties:
+        name:
+          type: string
+          description: Имя дополнительного элемента наблюдения
+        value:
+          type: string
+          description: Значение дополнительного элемента наблюдения
+      description: Дополнительная информация
+    Metrics:
+      required:
+        - availableMemory
+        - freeMemory
+        - threadCount
+        - usedMemory
+      type: object
+      properties:
+        usedMemory:
+          type: integer
+          description: Занятая память (байт)
+          format: int64
+        freeMemory:
+          type: integer
+          description: Свободная память (байт)
+          format: int64
+        availableMemory:
+          type: integer
+          description: Доступная память (байт)
+          format: int64
+        threadCount:
+          type: integer
+          description: Количество нитей
+          format: int32
+        extended:
+          type: array
+          description: Дополнительная информация
+          items:
+            $ref: '#/components/schemas/MetricExtension'
+      description: Единицы измерения
+    OrgDto:
+      title: Организация
+      required:
+        - esiaOrgId
+      type: object
+      properties:
+        esiaOrgId:
+          title: идентификатор организации в ЕСИА
+          type: string
+        fullName:
+          title: полное наименование организации
+          type: string
+        shortName:
+          title: сокращенное наименование организации
+          type: string
+        branchName:
+          title: наименование филиала
+          type: string
+        type:
+          title: тип организации
+          type: string
+        OGRN:
+          title: основной государственный регистрационный номер организации
+          type: string
+    SessionResponseDto:
+      type: object
+      properties:
+        sessionToken:
+          title: сессионный токен
+          type: string
+        currentUserId:
+          title: идентификатор текущей учетной записи
+          type: string
+          format: uuid
+        userAccountStatus:
+          title: статус учетной записи
+          type: string
+        esiaToken:
+          title: токен доступа ЕСИА
+          type: string
+        reason:
+          title: причина отказа в выдаче токена
+          type: string
+  responses:
+    response_400:
+      description: Некорректные входные данные
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessageDto'
+    response_401:
+      description: Пользователь не аутентифицирован
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessageDto'
+    response_403:
+      description: Действие запрещено
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessageDto'
+    response_404:
+      description: Ресурс не найден
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessageDto'
+    response_409:
+      description: Конфликт данных
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessageDto'
+    response_500:
+      description: Ошибка на сервере
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessageDto'
+  headers:
+    session_token:
+      description: httpOnly-кука SESSION_TOKEN со значением сессионного токена
+      schema:
+        type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: json

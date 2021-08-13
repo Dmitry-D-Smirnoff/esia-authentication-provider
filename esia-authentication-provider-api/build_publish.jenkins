@@ -1,0 +1,45 @@
+#!groovy
+properties([disableConcurrentBuilds()])
+
+pipeline {
+  agent {
+    label 'pct-dev-jenkins-agent-01'
+  }
+  options {
+    buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
+    timestamps()
+  }
+  parameters {
+    gitParameter branchFilter: 'origin/(.*)', defaultValue: 'develop',
+      name: 'BRANCH_TAG', type: 'PT_BRANCH_TAG', quickFilterEnabled: true,
+      description: 'Выберите ветку. По умолчанию develop'
+  }
+  stages {
+    stage ('Git checkout') {
+      steps {
+        checkout([$class: 'GitSCM',
+          branches: [[name: "${BRANCH_TAG}"]],
+          doGenerateSubmoduleConfigurations: false,
+          extensions: [],
+          gitTool: 'Default',
+          submoduleCfg: [],
+          userRemoteConfigs: [[url: 'gitlab@gitlab.voskhod.ru:platform/security/auth-providers/esia-authentication-provider.git']]
+          ])
+      }
+    }
+    stage('Run build script') {
+      steps {
+      sh label: '', script: '''cd ./esia-authentication-provider-api
+                              ./build.sh'''
+      }
+    }
+    stage('Run publish script') {
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'harbor', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
+          sh label: '', script: """cd ./esia-authentication-provider-api
+            ./publish.sh ${USERNAME} ${PASSWORD}"""
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "stateFacts": [
+    "EntityRoot"
+  ],
+  "firstName": "Диана",
+  "lastName": "Ларина",
+  "middleName": "Алексеевна",
+  "birthDate": "19.01.1987",
+  "birthPlace": "Москва",
+  "gender": "F",
+  "trusted": true,
+  "citizenship": "RUS",
+  "snils": "666-374-403 26",
+  "updatedOn": 1597406302,
+  "status": "REGISTERED",
+  "verifying": false,
+  "rIdDoc": 140351,
+  "regCtxCfmSte": "PCD",
+  "chosenCfmTypes": [
+    "POS"
+  ],
+  "regType": "SLF",
+  "containsUpCfmCode": false,
+  "eTag": "AC71D6B0367BE5861196055216DD119145389ED8"
+}

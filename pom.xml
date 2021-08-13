@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>ru.voskhod.platform.security</groupId>
+    <artifactId>esia-authentication-provider</artifactId>
+    <version>1.4.0-00</version>
+    <packaging>pom</packaging>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+
+        <version.commons>1.3.19</version.commons>
+
+        <timestamp>${maven.build.timestamp}</timestamp>
+    </properties>
+
+    <modules>
+        <module>esia-authentication-provider-api</module>
+    </modules>
+
+
+    <build>
+        <pluginManagement>
+            <plugins>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.8.1</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.0.0-M5</version>
+                </plugin>
+
+            </plugins>
+        </pluginManagement>
+    </build>
+
+
+    <dependencyManagement>
+
+        <dependencies>
+
+            <!-- Wildfly -->
+
+            <dependency>
+                <groupId>org.wildfly</groupId>
+                <artifactId>wildfly-feature-pack</artifactId>
+                <version>19.1.0.Final</version>
+                <type>pom</type>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>io.undertow</groupId>
+                <artifactId>undertow-servlet</artifactId>
+                <version>2.0.15.Final</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.enterprise</groupId>
+                <artifactId>cdi-api</artifactId>
+                <version>2.0</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>servlet-api</artifactId>
+                <version>2.5</version>
+                <scope>provided</scope>
+            </dependency>
+
+
+            <!-- Swagger -->
+
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-jaxrs2</artifactId>
+                <version>2.1.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.swagger.parser.v3</groupId>
+                <artifactId>swagger-parser</artifactId>
+                <version>2.0.14</version>
+            </dependency>
+
+
+            <!-- Platform -->
+
+            <dependency>
+                <groupId>ru.voskhod.platform.commons</groupId>
+                <artifactId>common</artifactId>
+                <version>${version.commons}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>ru.voskhod.platform.commons</groupId>
+                <artifactId>diagnostic</artifactId>
+                <version>${version.commons}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>ru.voskhod.platform.commons</groupId>
+                <artifactId>core-security</artifactId>
+                <version>${version.commons}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>ru.voskhod.platform.commons.fispa</groupId>
+                <artifactId>fispa-core</artifactId>
+                <version>${version.commons}</version>
+            </dependency>
+
+
+            <!-- Tools -->
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-simple</artifactId>
+                <version>1.7.28</version>
+            </dependency>
+
+
+            <!-- Testing -->
+
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-engine</artifactId>
+                <version>5.4.2</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-junit-jupiter</artifactId>
+                <version>2.27.0</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-reflect</artifactId>
+                <version>2.0.2</version>
+                <scope>test</scope>
+            </dependency>
+
+        </dependencies>
+
+    </dependencyManagement>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.8</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+
+    <distributionManagement>
+        <repository>
+            <id>nexus-releases</id>
+            <url>https://nexus.12.voskhod.ru/repository/releases</url>
+        </repository>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>nexus-releases</id>
+            <name>Voskhod Platform Nexus repository</name>
+            <url>https://nexus.12.voskhod.ru/repository/releases</url>
+        </repository>
+    </repositories>
+
+</project>
