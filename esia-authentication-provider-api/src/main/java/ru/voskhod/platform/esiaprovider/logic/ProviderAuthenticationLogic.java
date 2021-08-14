@@ -124,6 +124,29 @@ public class ProviderAuthenticationLogic {
         }
     }
 
+    /**
+     * Метод запрашивает в ЦАП информацию по сегментам, к которым относятся учетные записи
+     * аутентифицируемого пользователя. Если пользователь не связан ни с одной организацией,
+     * метод возвращает пустой массив.
+     */
+    public OrgDto[] getSegmentOrganizationsByAuthCode(AuthCodeDto dto) {
+
+        try (EsiaUserClient client = esiaUserClientFactory.createClient(dto.getCode(), null)) {
+
+            return providerDataLogic.findUserSegmentOrganizations(client);
+
+        } catch (IOException
+                | UnrecoverableKeyException
+                | CertificateException
+                | NoSuchAlgorithmException
+                | KeyStoreException
+                | SignatureException
+                | InvalidKeySpecException
+                | URISyntaxException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
     public URI getAccessCodeUrl(String esiaOrganizationId, URI referer) {
 
         try {
@@ -190,6 +213,7 @@ public class ProviderAuthenticationLogic {
             }
 
             // Проверка на запрет входа без привязки к организации
+            //TODO: ???: Исключить эту проверку, т.к. организации мы получаем из ЦАП
             if (orgDto == null && !settings.esia.allowPersonAuth.value()) {
                 throw new UnauthenticatedException(format(
                         "Для пользователя ЕСИА ''{0}'' не задана организация", client.userId
@@ -197,6 +221,7 @@ public class ProviderAuthenticationLogic {
             }
 
             // Проверка на наличие и активность соответствующей организации в ЕСИА
+            //TODO: ???: Исключить эту проверку, т.к. организации мы получаем из ЦАП
             if (orgDto != null && !client.currentActiveOrganization.get().isPresent()) {
                 throw new UnauthenticatedException(format(
                         "Не найдена активная организация пользователя по oid ''{0}''",

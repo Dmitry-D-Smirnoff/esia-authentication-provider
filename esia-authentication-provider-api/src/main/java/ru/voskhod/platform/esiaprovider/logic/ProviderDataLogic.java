@@ -8,10 +8,12 @@ import ru.voskhod.platform.common.exception.UnauthenticatedException;
 import ru.voskhod.platform.core.utils.CollectionUpdater;
 import ru.voskhod.platform.core.utils.LazyCheck;
 import ru.voskhod.platform.core.utils.Reliable;
+import ru.voskhod.platform.esiaprovider.api.dto.OrgDto;
 import ru.voskhod.platform.esiaprovider.client.AccessManagerRestClient;
 import ru.voskhod.platform.esiaprovider.client.SegmentRegistryRestClient;
 import ru.voskhod.platform.esiaprovider.client.dto.EsiaGroupDto;
 import ru.voskhod.platform.esiaprovider.client.dto.SecurityGroupDto;
+import ru.voskhod.platform.esiaprovider.client.dto.SegmentDto;
 import ru.voskhod.platform.esiaprovider.client.dto.SupplementaryAttributeDto;
 import ru.voskhod.platform.esiaprovider.client.dto.UserAccountDtoCreate;
 import ru.voskhod.platform.esiaprovider.client.dto.UserAccountDtoRead;
@@ -32,6 +34,7 @@ import java.net.URISyntaxException;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -100,7 +103,7 @@ public class ProviderDataLogic {
             profile = updateUserProfile(profile, client);
 
             List<UserAccountDtoRead> accounts = accessManagerRestClient
-                    .findUserAccounts(UserAccountDtoRead.TYPE_COMMON, segmentId, profile.getId());
+                    .findUserAccountsInSegment(UserAccountDtoRead.TYPE_COMMON, segmentId, profile.getId());
 
             // Если получен пустой список УЗ, доступна автоматическая регистрация (если включена настройка).
             // Если получен список состоящий только из удалённых УЗ, отказываем в аутентификации.
@@ -162,6 +165,52 @@ public class ProviderDataLogic {
         }
 
         return profile;
+    }
+
+    public OrgDto[] findUserSegmentOrganizations(EsiaUserClient client) throws IOException, URISyntaxException {
+
+        UserProfileDto profile = findProfile(
+                client.info.get().snils,
+                client.contactEmail.get().map(contact -> contact.value).orElse(null));
+        List<OrgDto> organizations = new ArrayList<>();
+
+        if (profile == null) {
+            throw new UnauthenticatedException("Профиль пользователя не найден в МЗИ ТОР КНД по СНИЛС/email");
+        } else {
+            List<UserAccountDtoRead> accounts = accessManagerRestClient
+                    .findUserAccounts(UserAccountDtoRead.TYPE_COMMON, profile.getId());
+
+            // Если получен список, состоящий только из удалённых УЗ, отказываем в аутентификации.
+            if (accounts.size() > 0) {
+                accounts = accounts
+                        .stream()
+                        .filter(dto -> !dto.isDeleted())
+                        .collect(Collectors.toList());
+
+                if (accounts.size() == 0) {
+                    throw new UnauthenticatedException("Не найдены активные учетные записи в МЗИ ТОР КНД");
+                }
+
+                for(UserAccountDtoRead account : accounts){
+                    SegmentDto segment = segmentRegistryRestClient.findSegmentById(account.getSegmentId());
+                    if(segment==null || segment.getId() == null) continue;
+                    OrgDto org = new OrgDto();
+                    org.setEsiaOrgId(segment.getId().toString());
+                    org.setOGRN(segment.getSysname());
+                    org.setFullName(segment.getDescription());
+                    org.setShortName(segment.getName());
+                    org.setBranchName("Нет данных");
+                    org.setType("Сведения о Сегменте из МЗИ ТОР КНД");
+                    organizations.add(org);
+                }
+
+            } else {
+                throw new UnauthenticatedException("Не найдены активные учетные записи в МЗИ ТОР КНД");
+            }
+
+        }
+
+        return organizations.toArray(new OrgDto[0]);
     }
 
     private UserProfileDto updateUserProfile(UserProfileDto profile, EsiaUserClient client) throws IOException, URISyntaxException {

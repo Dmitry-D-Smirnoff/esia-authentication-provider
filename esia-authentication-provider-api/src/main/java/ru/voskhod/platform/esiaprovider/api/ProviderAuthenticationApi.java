@@ -41,7 +41,7 @@ public class ProviderAuthenticationApi {
 
     @EJB
     private ProviderAuthenticationLogic authBl;
-
+/*
     @POST
     @Path("getorgs")
     @Consumes({"application/json"})
@@ -60,6 +60,26 @@ public class ProviderAuthenticationApi {
                                                    @Context SecurityContext securityContext) {
 
         return Response.ok().entity(authBl.getOrganizationsByAuthCode(body)).build();
+    }
+*/
+    @POST
+    @Path("getorgs")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @Operation(summary = "Возвращает список организаций пользователя по сегментам его учетных записей из ЦАП на основании кода авторизации ЕСИА")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Успешно",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = OrgDto.class)))
+            ),
+            @ApiResponse(responseCode = "400", ref = "#/components/responses/response_400"),
+            @ApiResponse(responseCode = "409", ref = "#/components/responses/response_409")}
+    )
+    public Response esiaGetOrganizationsByAuthCode(@Parameter(description = "авторизационный код ЕСИА и state (случайный набор байт из ЕСИА)") AuthCodeDto body,
+                                                   @Context SecurityContext securityContext) {
+
+        return Response.ok().entity(authBl.getSegmentOrganizationsByAuthCode(body)).build();
     }
 
     @POST

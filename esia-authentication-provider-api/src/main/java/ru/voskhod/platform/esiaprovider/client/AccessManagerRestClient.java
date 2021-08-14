@@ -122,11 +122,22 @@ public class AccessManagerRestClient {
     }
 
 
-    public List<UserAccountDtoRead> findUserAccounts(UUID accountTypeId, UUID segmentId, UUID profileId) throws IOException, URISyntaxException {
+    public List<UserAccountDtoRead> findUserAccountsInSegment(UUID accountTypeId, UUID segmentId, UUID profileId) throws IOException, URISyntaxException {
 
         PlatformRestClient.Response response = client.get(
                 format("%s/users?user_profile_id=%s&segment_id=%s&type_id=%s", ACCESS_MANAGER_URI,
                         profileId, segmentId, accountTypeId));
+
+        response.assertStatusCode(200);
+
+        return response.getEntityList(UserAccountDtoRead.class);
+    }
+
+    public List<UserAccountDtoRead> findUserAccounts(UUID accountTypeId, UUID profileId) throws IOException, URISyntaxException {
+
+        PlatformRestClient.Response response = client.get(
+                format("%s/users?user_profile_id=%s&type_id=%s", ACCESS_MANAGER_URI,
+                        profileId, accountTypeId));
 
         response.assertStatusCode(200);
 
