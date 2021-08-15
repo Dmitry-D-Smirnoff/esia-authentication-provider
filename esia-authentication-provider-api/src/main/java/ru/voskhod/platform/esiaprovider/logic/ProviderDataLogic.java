@@ -39,6 +39,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -191,9 +192,10 @@ public class ProviderDataLogic {
                     throw new UnauthenticatedException("Не найдены активные учетные записи в МЗИ ТОР КНД");
                 }
 
+                Set<UUID> segmentIds = new HashSet<>();
                 for(UserAccountDtoRead account : accounts){
                     SegmentDto segment = segmentRegistryRestClient.findSegmentById(account.getSegmentId());
-                    if(segment==null || segment.getId() == null) continue;
+                    if(segment==null || segment.getId() == null || segmentIds.contains(segment.getId())) continue;
                     OrgDto org = new OrgDto();
                     org.setEsiaOrgId(segment.getId().toString());
                     org.setOGRN(segment.getSysname());
@@ -202,6 +204,7 @@ public class ProviderDataLogic {
                     org.setBranchName("Нет данных");
                     org.setType("Сведения о Сегменте из МЗИ ТОР КНД");
                     organizations.add(org);
+                    segmentIds.add(segment.getId());
                 }
 
             } else {

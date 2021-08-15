@@ -36,8 +36,6 @@ import java.text.MessageFormat;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import static java.text.MessageFormat.format;
-
 @Stateless
 public class ProviderAuthenticationLogic {
 
@@ -212,21 +210,25 @@ public class ProviderAuthenticationLogic {
                 throw new UnauthenticatedException("Не указан идентификатор сегмента");
             }
 
+            // ПРОВЕРКА ИСКЛЮЧЕНА - организации мы получаем из ЦАП
             // Проверка на запрет входа без привязки к организации
-            //TODO: ???: Исключить эту проверку, т.к. организации мы получаем из ЦАП
+            /*
             if (orgDto == null && !settings.esia.allowPersonAuth.value()) {
                 throw new UnauthenticatedException(format(
                         "Для пользователя ЕСИА ''{0}'' не задана организация", client.userId
                 ));
             }
+            */
 
+            // ПРОВЕРКА ИСКЛЮЧЕНА - организации мы получаем из ЦАП
             // Проверка на наличие и активность соответствующей организации в ЕСИА
-            //TODO: ???: Исключить эту проверку, т.к. организации мы получаем из ЦАП
+            /*
             if (orgDto != null && !client.currentActiveOrganization.get().isPresent()) {
                 throw new UnauthenticatedException(format(
                         "Не найдена активная организация пользователя по oid ''{0}''",
                         client.organizationId));
             }
+            */
 
             // Нахождение существующей, либо регистрация новой учётной записи
             UserAccountDtoRead account = providerDataLogic.identify0signUp(body.getSegmentId(), client);
